@@ -1,3 +1,4 @@
+from webbrowser import get
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, StickerSendMessage, LocationSendMessage, QuickReply, QuickReplyButton, MessageAction
 from linebot.models import MessageEvent, TextMessage, PostbackEvent, TextSendMessage, TemplateSendMessage, ConfirmTemplate, MessageTemplateAction, ButtonsTemplate, PostbackTemplateAction, URITemplateAction, CarouselTemplate, CarouselColumn, ImageCarouselTemplate, ImageCarouselColumn
 from linebot.exceptions import InvalidSignatureError
@@ -40,74 +41,47 @@ def handle_message(event):
     if mtext == '寶早安':
         sendCarousel(event)
 
-    elif mtext == '@看八卦':
+    elif mtext == '@看八卦版':
         try:
             content = []
-
-            web = requests.get(
-                'https://www.ptt.cc/bbs/Gossiping/index.html', cookies={'over18': '1'})
-            soup = BeautifulSoup(web.text, "html.parser")
-            # 取得 class 為 title 的 div 內容
-            titles = soup.find_all('div', class_='title')
-            for i in titles[0:10]:
-                title = i.text.strip()
-                link = 'https://www.ptt.cc/' + i.find('a')['href']
+            url = f"https://opensheet.elk.sh/1oHKxASVeO6EpHlBE0Um9sQBoIDErAoJIItUGelSFMaE/grosspingData"
+            headers = {
+                "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"
+            }
+            r = requests.get(url)
+            data =  r.json()
+            for i in data[0:10]:
+                title = i.get("mtitle")
+                link = i.get("mlink")
                 content += [title + link]
+
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='\n\n'.join(content)))
         except:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='發生錯誤！'))
+
+    elif mtext == '@如何查詢空氣品質':
+        try:
+            content = '參考輸入範例:'+'\n\n''"台北空氣"'+'\n'+'"萬華區空氣品質"'+'\n'+'"台中aqi"'
             
-    elif mtext == '@看空氣品質':
-        try:
-            content = []
-
-            web = requests.get(
-                'https://www.ptt.cc/bbs/Gossiping/index.html', cookies={'over18': '1'})
-            soup = BeautifulSoup(web.text, "html.parser")
-            # 取得 class 為 title 的 div 內容
-            titles = soup.find_all('div', class_='title')
-            for i in titles[0:10]:
-                title = i.text.strip()
-                link = 'https://www.ptt.cc/' + i.find('a')['href']
-                content += [title + link]
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='\n\n'.join(content)))
+                event.reply_token, TextSendMessage(text=content))
         except:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='發生錯誤！'))
 
-    elif mtext == '@看表特':
+    elif mtext == '@看表特版':
         try:
             content = []
-
-            web = requests.get(
-                'https://www.ptt.cc/bbs/Beauty/index.html', cookies={'over18': '1'})
-            soup = BeautifulSoup(web.text, "html.parser")
-            # 取得 class 為 title 的 div 內容
-            titles = soup.find_all('div', class_='title')
-            for i in titles[0:10]:
-                title = i.text.strip()
-                link = 'https://www.ptt.cc/' + i.find('a')['href']
+            url = f"https://opensheet.elk.sh/1dOCnHtNRSo4X1SA02NcubK62QINsJ5GM8T6ApLJAf00/beautyArticle"
+            r = requests.get(url)
+            data =  r.json()
+            for i in data[0:10]:
+                title = i.get("mtitle")
+                link = i.get("mlink")
                 content += [title + link]
-                line_bot_api.reply_message(event.reply_token, TextSendMessage(text='\n\n'.join(content)))
-        except:
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='發生錯誤！'))
 
-    elif mtext == '@看國際新聞':
-        try:
-            content = []
-
-            url = 'https://news.ltn.com.tw/list/breakingnews/world'
-            web = requests.get(url)
-            soup = BeautifulSoup(web.text, "html.parser")
-            news = soup.select('div.whitecon > ul > li')
-            for i in news[0:10]:
-                title = i.find('a')['title']
-                link = i.find('a')['href']
-                content += [title + link]
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='\n\n'.join(content)))
         except:
@@ -132,19 +106,17 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='發生錯誤！'))
 
-    elif mtext == '@找美食':
+    elif mtext == '@批踢踢熱門文章':
         try:
             content = []
-
-            web = requests.get(
-                'https://www.ptt.cc/bbs/Food/index.html', cookies={'over18': '1'})
-            soup = BeautifulSoup(web.text, "html.parser")
-            # 取得 class 為 title 的 div 內容
-            titles = soup.find_all('div', class_='title')
-            for i in titles[0:10]:
-                title = i.text.strip()
-                link = 'https://www.ptt.cc/' + i.find('a')['href']
+            url = f"https://opensheet.elk.sh/1ulYVMWJqOWLIeBlYDzfR6LtOxmErrxPPuoJZGJQoOP0/articleHot"
+            r = requests.get(url)
+            data =  r.json()
+            for i in data[0:10]:
+                title = i.get("mtitle")
+                link = i.get("mlink")
                 content += [title + link]
+
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='\n\n'.join(content)))
         except:
@@ -190,7 +162,6 @@ def handle_message(event):
 
     elif mtext == '@最近熱門電影':
         try:
-           
             content = []
             url = f"https://opensheet.elk.sh/1F9o9xlCVKXEkxcHGKR1gPUsxArhdheQ_Hf0f3MFAohw/movieList"
             headers = {
@@ -209,6 +180,408 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='發生錯誤！'))
 
+    elif '區空氣品質' in mtext:
+        try:
+            
+            content = []
+            # 取得要查詢的區域
+            typeWords = mtext.split('區')[0]
+            
+            url = f'https://opensheet.elk.sh/1pqyY2HRSqINHC35lcm04POR-MeQZTU835DGktbET-HU/testData'
+            r = requests.get(url)
+            data = r.json()
+            
+            for i in data:
+                if typeWords == i.get("sitename"):
+                    site = i.get("sitename");
+                    aqi = i.get("aqi");
+                    pm = i.get("pm2.5");
+                
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text='您查詢的資料如下:'+
+                        '\n\n'+'監測站:'+site+
+                        '\n'+'aqi 空氣指標:'+aqi+
+                        '\n'+'PM2.5 :'+pm))
+        except:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='發生錯誤！'))
+    
+    elif '空氣' in mtext:
+        try:
+            
+            content = []
+            # 取得要查詢的區域，如果輸入桃園aqi
+            typeWords = mtext.split('空氣')[0]
+            
+            url = f'https://opensheet.elk.sh/1pqyY2HRSqINHC35lcm04POR-MeQZTU835DGktbET-HU/testData'
+            r = requests.get(url)
+            data = r.json()
+            
+            if '台北'in typeWords:
+                typeWords = typeWords.replace('台北','臺北市')
+            
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif ('全臺'in typeWords)|('全台'in typeWords):
+                for i in data:
+                    site = i.get("sitename");
+                    aqi = i.get("aqi");
+                    content += [site+'站的aqi值為:'+aqi]
+                        
+            elif '臺北'in typeWords:
+                typeWords = typeWords.replace('臺北','臺北市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '台中'in typeWords:
+                typeWords = typeWords.replace('台中','臺中市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '臺中'in typeWords:
+                typeWords = typeWords.replace('臺中','臺中市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '苗栗'in typeWords:
+                typeWords = typeWords.replace('苗栗','苗栗縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '彰化'in typeWords:
+                typeWords = typeWords.replace('彰化','彰化縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '南投'in typeWords:
+                typeWords = typeWords.replace('南投','南投縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '雲林'in typeWords:
+                typeWords = typeWords.replace('雲林','雲林縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '屏東'in typeWords:
+                typeWords = typeWords.replace('屏東','屏東市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '宜蘭'in typeWords:
+                typeWords = typeWords.replace('宜蘭','宜蘭縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '金門'in typeWords:
+                typeWords = typeWords.replace('金門','金門縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '台南'in typeWords:
+                typeWords = typeWords.replace('台南','臺南市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '臺南'in typeWords:
+                typeWords = typeWords.replace('臺南','臺南市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+           
+            elif '桃園'in typeWords:
+                typeWords = typeWords.replace('桃園','桃園市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '基隆'in typeWords:
+                typeWords = typeWords.replace('基隆','基隆市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '高雄'in typeWords:
+                typeWords = typeWords.replace('高雄','高雄市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+            elif '新竹'in typeWords:
+                typeWords = typeWords.replace('新竹','新竹市')
+                typeWords2 = typeWords.replace('新竹市','新竹縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+                for i in data:
+                    if typeWords2 == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+            elif '嘉義'in typeWords:
+                typeWords = typeWords.replace('嘉義','嘉義市')
+                typeWords2 = typeWords.replace('嘉義市','嘉義縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+                for i in data:
+                    if typeWords2 == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text='\n\n'.join(content)))
+        except:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='發生錯誤！'))
+    
+            
+    elif 'aqi' in mtext:
+        try:
+            
+            content = []
+            cityList = [
+                '臺北市','新北市','基隆市',
+                '桃園市','新竹市','新竹縣',
+                '苗栗縣','臺中市','彰化縣',
+                '南投縣','雲林縣','嘉義縣',
+                '台南市','高雄市','屏東縣',
+                '宜蘭縣','金門縣','嘉義市']
+            
+            # 取得要查詢的區域，如果輸入桃園aqi
+            typeWords = mtext.split('aq')[0]
+            
+            url = f'https://opensheet.elk.sh/1pqyY2HRSqINHC35lcm04POR-MeQZTU835DGktbET-HU/testData'
+            r = requests.get(url)
+            data = r.json()
+            
+            if '台北'in typeWords:
+                typeWords = typeWords.replace('台北','臺北市')
+            
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif ('全臺'in typeWords)|('全台'in typeWords):
+                for i in data:
+                    site = i.get("sitename");
+                    aqi = i.get("aqi");
+                    content += [site+'站的aqi值為:'+aqi]
+                        
+            elif '臺北'in typeWords:
+                typeWords = typeWords.replace('臺北','臺北市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '台中'in typeWords:
+                typeWords = typeWords.replace('台中','臺中市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '臺中'in typeWords:
+                typeWords = typeWords.replace('臺中','臺中市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '苗栗'in typeWords:
+                typeWords = typeWords.replace('苗栗','苗栗縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '彰化'in typeWords:
+                typeWords = typeWords.replace('彰化','彰化縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '南投'in typeWords:
+                typeWords = typeWords.replace('南投','南投縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '雲林'in typeWords:
+                typeWords = typeWords.replace('雲林','雲林縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '屏東'in typeWords:
+                typeWords = typeWords.replace('屏東','屏東市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '宜蘭'in typeWords:
+                typeWords = typeWords.replace('宜蘭','宜蘭縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '金門'in typeWords:
+                typeWords = typeWords.replace('金門','金門縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '台南'in typeWords:
+                typeWords = typeWords.replace('台南','臺南市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '臺南'in typeWords:
+                typeWords = typeWords.replace('臺南','臺南市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+           
+            elif '桃園'in typeWords:
+                typeWords = typeWords.replace('桃園','桃園市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '基隆'in typeWords:
+                typeWords = typeWords.replace('基隆','基隆市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            elif '高雄'in typeWords:
+                typeWords = typeWords.replace('高雄','高雄市')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+            elif '新竹'in typeWords:
+                typeWords = typeWords.replace('新竹','新竹市')
+                typeWords2 = typeWords.replace('新竹市','新竹縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+                for i in data:
+                    if typeWords2 == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+            elif '嘉義'in typeWords:
+                typeWords = typeWords.replace('嘉義','嘉義市')
+                typeWords2 = typeWords.replace('嘉義市','嘉義縣')
+                for i in data:
+                    if typeWords == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+                
+                for i in data:
+                    if typeWords2 == i.get("county"):
+                        site = i.get("sitename");
+                        aqi = i.get("aqi");
+                        content += [site+'站的aqi值為:'+aqi]
+            
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text='\n\n'.join(content)))
+        except:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='發生錯誤！'))
+            
 
     elif mtext == '@傳送圖片':
         try:
@@ -260,26 +633,26 @@ def sendCarousel(event):  # 轉盤樣板
                         actions=[
                             MessageTemplateAction(  # 顯示文字計息
                                 label='八卦版',
-                                text='@看八卦'
+                                text='@看八卦版'
                             ),
                             MessageTemplateAction(  # 顯示文字計息
                                 label='表特版',
-                                text='@看表特'
+                                text='@看表特版'
                             ),
                             MessageTemplateAction(  # 顯示文字計息
-                                label='找美食',
-                                text='@找美食'
+                                label='批踢踢熱門文章',
+                                text='@批踢踢熱門文章'
                             )
                         ]
                     ),
                     CarouselColumn(
-                        thumbnail_image_url='https://play-lh.googleusercontent.com/t_bdeVM08aeIAjzWF70-H3oOv4yEQSskm-d0K1SXlvTHQx-AHfaTaS5OIIRvvXguo1E',
-                        title='摸魚專區',
-                        text='選擇摸魚項目',
+                        thumbnail_image_url='https://icons-for-free.com/download-icon-forecast+partly+cloudy+weather+icon-1320196484400215944_512.png',
+                        title='生活專區',
+                        text='選擇項目',
                         actions=[
                             MessageTemplateAction(
-                                label='國際新聞',
-                                text='@看國際新聞'
+                                label='查詢空氣品質',
+                                text='@如何查詢空氣品質'
                             ),
                             MessageTemplateAction(
                                 label='最近熱門電影',
